@@ -3,136 +3,133 @@ This Python code is a comprehensive implementation of a predictive model to esti
 # Step 1: Importing Libraries
 The necessary Python libraries are imported for various tasks such as data manipulation, visualization, preprocessing, and machine learning:
 
-import numpy as np
+    1. import numpy as np
+    2. import pandas as pd
+    3. from numpy import math
+    4. from sklearn.preprocessing import MinMaxScaler
+    5. from sklearn.model_selection import train_test_split
+    6. from sklearn.linear_model import LinearRegression
+    7. from sklearn.metrics import r2_score, mean_squared_error
+    8. import matplotlib.pyplot as plt
 
-import pandas as pd
-from numpy import math
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score, mean_squared_error
-import matplotlib.pyplot as plt
-
-numpy: For numerical computations.
-pandas: For loading and manipulating data.
-matplotlib.pyplot: For creating visualizations.
-scikit-learn: For preprocessing, model training, and evaluation.
+    numpy: For numerical computations.
+    pandas: For loading and manipulating data.
+    matplotlib.pyplot: For creating visualizations.
+    scikit-learn: For preprocessing, model training, and evaluation.
 
 # Step 2: Loading the Dataset
-The dataset, 50_Startups.csv, is loaded, and its structure is explored.
-
-dataset = pd.read_csv('50_Startups.csv')
-len(dataset)
-dataset.head()
-dataset.shape
-len(dataset): Shows the total number of rows in the dataset.
-dataset.head(): Displays the first five rows for a quick overview.
-dataset.shape: Returns the number of rows and columns.
+    The dataset, 50_Startups.csv, is loaded, and its structure is explored.
+    
+    9. dataset = pd.read_csv('50_Startups.csv')
+    10. len(dataset)
+    11. dataset.head()
+    12. dataset.shape
+    13. len(dataset): Shows the total number of rows in the dataset.
+    14. dataset.head(): Displays the first five rows for a quick overview.
+    15. dataset.shape: Returns the number of rows and columns.
 
 # Step 3: Exploratory Data Analysis (EDA)
 
 # Scatter Plots
-Scatter plots are created to analyze the relationship between independent variables and the dependent variable (Profit).
+    Scatter plots are created to analyze the relationship between independent variables and the dependent variable (Profit).
+    
+    16. plt.scatter(dataset['Marketing Spend'], dataset['Profit'], alpha=0.5)
+    17. plt.title('Scatter plot of Profit with Marketing Spend')
+    18. plt.xlabel('Marketing Spend')
+    19. plt.ylabel('Profit')
+    20. plt.show()
 
-plt.scatter(dataset['Marketing Spend'], dataset['Profit'], alpha=0.5)
-plt.title('Scatter plot of Profit with Marketing Spend')
-plt.xlabel('Marketing Spend')
-plt.ylabel('Profit')
-plt.show()
+    21. plt.scatter(dataset['R&D Spend'], dataset['Profit'], alpha=0.5)
+    22. plt.title('Scatter plot of Profit with R&D Spend')
+    23. plt.xlabel('R&D Spend')
+    24. plt.ylabel('Profit')
+    25. plt.show()
 
-plt.scatter(dataset['R&D Spend'], dataset['Profit'], alpha=0.5)
-plt.title('Scatter plot of Profit with R&D Spend')
-plt.xlabel('R&D Spend')
-plt.ylabel('Profit')
-plt.show()
-
-plt.scatter(dataset['Administration'], dataset['Profit'], alpha=0.5)
-plt.title('Scatter plot of Profit with Administration')
-plt.xlabel('Administration')
-plt.ylabel('Profit')
-plt.show()
-These visualizations help identify which features are most correlated with profit.
+    26. plt.scatter(dataset['Administration'], dataset['Profit'], alpha=0.5)
+    27. plt.title('Scatter plot of Profit with Administration')
+    28. plt.xlabel('Administration')
+    29. plt.ylabel('Profit')
+    30. plt.show()
+    
+    These visualizations help identify which features are most correlated with profit.
 
 # Bar Plot
-The average profit across different states is visualized using a bar plot.
+    The average profit across different states is visualized using a bar plot.
 
-ax = dataset.groupby(['State'])['Profit'].mean().plot.bar(
-    figsize=(10, 5),
-    fontsize=14
-)
-ax.set_title("Average profit for different states where the startups operate", fontsize=20)
-ax.set_xlabel("State", fontsize=15)
-ax.set_ylabel("Profit", fontsize=15)
+    31. ax = dataset.groupby(['State'])['Profit'].mean().plot.bar(figsize=(10, 5),fontsize=14)
+    32. ax.set_title("Average profit for different states where the startups operate", fontsize=20)
+    33. ax.set_xlabel("State", fontsize=15)
+    34. ax.set_ylabel("Profit", fontsize=15)
 
 # Step 4: Data Preprocessing
-The categorical variable State is converted into dummy variables.
+    The categorical variable State is converted into dummy variables.
 
-dataset['NewYork_State'] = np.where(dataset['State'] == 'New York', 1, 0)
-dataset['California_State'] = np.where(dataset['State'] == 'California', 1, 0)
-dataset['Florida_State'] = np.where(dataset['State'] == 'Florida', 1, 0)
-dataset.drop(columns=['State'], axis=1, inplace=True)
-np.where: Creates binary dummy variables for each state.
-drop: Removes the original State column.
+    35. dataset['NewYork_State'] = np.where(dataset['State'] == 'New York', 1, 0)
+    36. dataset['California_State'] = np.where(dataset['State'] == 'California', 1, 0)
+    37. dataset['Florida_State'] = np.where(dataset['State'] == 'Florida', 1, 0)
+    38. dataset.drop(columns=['State'], axis=1, inplace=True)
+    39. np.where: Creates binary dummy variables for each state.
+    40. drop: Removes the original State column.
 
 # Step 5: Defining Independent and Dependent Variables
-The independent variables (X) and dependent variable (y) are defined.
+    The independent variables (X) and dependent variable (y) are defined.
 
-dependent_variable = 'Profit'
-independent_variables = list(set(dataset.columns.tolist()) - {dependent_variable})
-X = dataset[independent_variables].values
-y = dataset[dependent_variable].values
-independent_variables: A dynamic way to exclude the dependent variable (Profit) from the dataset.
-X and y: Arrays of independent and dependent variables, respectively.
+    41. dependent_variable = 'Profit'
+    42. independent_variables = list(set(dataset.columns.tolist()) - {dependent_variable})
+    43. X = dataset[independent_variables].values
+    44. y = dataset[dependent_variable].values
+    45. independent_variables: A dynamic way to exclude the dependent variable (Profit) from the dataset.
+    46. X and y: Arrays of independent and dependent variables, respectively.
 
 # Step 6: Splitting the Dataset
-The data is split into training and test sets.
+    The data is split into training and test sets.
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+    47. X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
-test_size=0.2: 20% of the data is allocated for testing.
-random_state=0: Ensures reproducibility
+    test_size=0.2: 20% of the data is allocated for testing.
+    random_state=0: Ensures reproducibility
 
 # Step 7: Feature Scaling
-Feature scaling is applied to normalize the independent variables.
+    Feature scaling is applied to normalize the independent variables.
 
-scaler = MinMaxScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
-MinMaxScaler: Scales features to a range of 0 to 1.
+    48. scaler = MinMaxScaler()
+    49. X_train = scaler.fit_transform(X_train)
+    50. X_test = scaler.transform(X_test)
+    MinMaxScaler: Scales features to a range of 0 to 1.
 
 # Step 8: Training the Model
-A Multiple Linear Regression model is trained using the training data.
+    A Multiple Linear Regression model is trained using the training data.
 
-regressor = LinearRegression()
-regressor.fit(X_train, y_train)
-fit: Learns the relationship between X_train and y_train.
+    51. regressor = LinearRegression()
+    52. regressor.fit(X_train, y_train)
+    53. fit: Learns the relationship between X_train and y_train.
 
 # Step 9: Model Coefficients
-The coefficients and intercept of the regression model are retrieved.
+    The coefficients and intercept of the regression model are retrieved.
 
-regressor.intercept_
-regressor.coef_
-These values indicate the impact of each feature on the target variable (Profit).
+    54. regressor.intercept_
+    55. regressor.coef_
+    These values indicate the impact of each feature on the target variable (Profit).
 
 # Step 10: Predicting Results
-The model predicts profits for both the training and test datasets.
+    The model predicts profits for both the training and test datasets.
 
-y_pred_train = regressor.predict(X_train)
-y_pred = regressor.predict(X_test)
+    56. y_pred_train = regressor.predict(X_train)
+    57. y_pred = regressor.predict(X_test)
 
 # Step 11: Model Evaluation
-The model is evaluated using Mean Squared Error (MSE), Root Mean Squared Error (RMSE), and R² Score.
+    The model is evaluated using Mean Squared Error (MSE), Root Mean Squared Error (RMSE), and R² Score.
 
-mean_squared_error(y_test, y_pred)
-math.sqrt(mean_squared_error(y_train, y_pred_train))
-math.sqrt(mean_squared_error(y_test, y_pred))
-r2_score(y_train, y_pred_train)
-r2_score(y_test, y_pred)
-MSE: Measures average squared error.
-RMSE: Provides a more interpretable metric.
-R² Score: Indicates the proportion of variance explained by the model.
+    58. mean_squared_error(y_test, y_pred)
+    59. math.sqrt(mean_squared_error(y_train, y_pred_train))
+    60. math.sqrt(mean_squared_error(y_test, y_pred))
+    61. r2_score(y_train, y_pred_train)
+    62. r2_score(y_test, y_pred)
+    MSE: Measures average squared error.
+    RMSE: Provides a more interpretable metric.
+    R² Score: Indicates the proportion of variance explained by the model.
 
 # Key Insights
-Features like R&D Spend and Marketing Spend significantly impact profitability.
-The model achieves a high R² score, indicating good explanatory power.
-Normalization and feature selection improve the model's reliability and accuracy.
+    Features like R&D Spend and Marketing Spend significantly impact profitability.
+    The model achieves a high R² score, indicating good explanatory power.
+    Normalization and feature selection improve the model's reliability and accuracy.
